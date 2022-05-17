@@ -26,12 +26,14 @@
         </span>
 
         {% if recipe.category is not None %}
-            <span class="recipe-author-item">
-                <a href="{% url 'recipes:category' 1 %}">
-                    <i class="fas fa-layer-group"></i>
-                    <span>{{ recipe.category.name }}</span>
-                </a>
-            </span>
+            {% if recipe.category.id is not None %}
+                <span class="recipe-author-item">
+                    <a href="{% url 'recipes:category'  recipe.category.id  %}">
+                        <i class="fas fa-layer-group"></i>
+                        <span>{{ recipe.category.name }}</span>
+                    </a>
+                </span>
+            {% endif %}
         {% endif %}
 
     </div>
@@ -66,9 +68,12 @@
 
      {% if is_datail_page is True %}
         <div class="preparation-steps">
-            {{ recipe.preparation_steps|linebreaksbr}}
+            {% if recipe.preparation_steps_is_html %}
+                {{ recipe.preparation_steps|safe}}
+            {% else %}
+                {{ recipe.preparation_steps|linebreaksbr}}
+            {% endif %}
         </div>
-
      {% endif %}
 
 </div>
