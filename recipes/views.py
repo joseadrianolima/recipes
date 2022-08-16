@@ -1,7 +1,7 @@
 
 from django.shortcuts import get_list_or_404, get_object_or_404, render
 
-from .models import Recipe
+from recipes.models import Recipe
 
 
 def home(request):
@@ -50,3 +50,6 @@ def recipe(request, id):
         'recipe': recipe,
         'is_datail_page': True,
     })
+
+def search(request):
+    return render(request, 'recipes/pages/search.html')
