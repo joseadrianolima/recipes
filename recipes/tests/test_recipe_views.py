@@ -1,40 +1,11 @@
-from django.test import TestCase
+
 from django.urls import resolve, reverse
 from recipes import views
-from recipes.models import Category, Recipe, User
+
+from .test_recipe_base import RecipeTestBase
 
 
-class RecipeTesteBase(Testcase):
-    def setUp(self) -> None:
-        category = Category.objects.create(name='Category')
-        author = User.objects.create_user(
-            first_name='user',
-            last_name='lima',
-            username='user',
-            password='1234',
-            email='user@user.com',
-        )
-        recipe = Recipe.objects.create(
-            category=category,
-            author=author,
-            title='Título',
-            description='Description',
-            slug='newslug-descruotuib',
-            preparation_time=10,
-            preparation_time_unit='Minutos',
-            servings=5,
-            servings_unit='Porções',
-            preparation_steps='Recipe preparation steps',
-            preparation_steps_is_html=False,
-            is_published=True,
-
-        )
-        return super().setUp()
-
-class RecipeViewTest(RecipeTesteBase):
-
-    def tearDown(self) -> None:
-        return super().tearDown()
+class RecipeViewTest(RecipeTestBase):
 
     def test_recipe_home_view_function_is_correct(self):
         view = resolve(reverse('recipes:home'))
@@ -56,12 +27,20 @@ class RecipeViewTest(RecipeTesteBase):
         )
 
     def test_recipe_home_templates_loads_recipies(self):
-
+        self.make_recipe(title='Title')
         response = self.client.get(reverse('recipes:home'))
         content = response.content.decode('utf-8')
         response_context_recipes = response.context['recipes']
-        self.assertIn('Título', content)
+        self.assertIn('Title', content)
         self.assertEqual(len(response_context_recipes), 1)
+
+    def test_recipe_home_templates_loads_not_published_recipies(self):
+        self.make_recipe(is_published=False)
+        response = self.client.get(reverse('recipes:home'))
+        self.assertIn(
+            'No recipes found here', 
+            response.content.decode('utf-8')
+        )
 
     def test_recipe_category_view_function_is_correct(self):
         view = resolve(
@@ -73,6 +52,18 @@ class RecipeViewTest(RecipeTesteBase):
         response = self.client.get((
             reverse('recipes:category', kwargs={'category_id': 1})
         ))
+        self.assertEqual(response.status_code, 404)
+
+ #   def test_recipe_category_templates_loads_recipies(self):
+ #       needed_title = 'This is a category test'
+ #       self.make_recipe(title=needed_title)
+ #       response = self.client.get(reverse('recipes:category', args=(1,)))
+ #       content = response.content.decode('utf-8')
+ #       self.assertIn(needed_title, content)
+
+    def test_recipe_category_templates_loads_not_published_recipies(self):
+        recipe = self.make_recipe(is_published=False)
+        response = self.client.get(reverse('recipes:category', args=(recipe.category.id,)))
         self.assertEqual(response.status_code, 404)
 
     def test_recipe_recipe_detail_view_function_is_correct(self):
@@ -87,15 +78,22 @@ class RecipeViewTest(RecipeTesteBase):
         ))
         self.assertEqual(response.status_code, 404)
 
+    def test_recipe_detail_templates_loads_not_published_recipies(self):
+        recipe = self.make_recipe(is_published=False)
+        response = self.client.get(reverse('recipes:recipe', kwargs={'id': recipe.id}))
+        self.assertEqual(response.status_code, 404)
+
+#    def test_recipe_detail_templates_loads_recipies(self):
+#        needed_title = 'This is a detail test'
+#        self.make_recipe(title=needed_title)
+#        response = self.client.get(reverse('recipes:recipe', kwargs={'id': 1}))
+#        content = response.content.decode('utf-8')
+#        self.assertIn(needed_title, content)
+
     def test_recipe_search_uses_correct_view_function(self):
         url = reverse('recipes:search')
         resolved = resolve(url)
         self.assertIs(resolved.func, views.search)
-
- #   def test_recipe_search_loads_correct_template(self):
- #       response = self.client.get(reverse('recipes:search')+'q=teste')
- #       print(response)
- #       self.assertTemplateUsed(response, 'recipes/pages/search.html')
 
     def test_recipe_search_raises_404_if_no_search_term(self):
         url = reverse('recipes:search')
