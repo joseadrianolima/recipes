@@ -42,7 +42,6 @@ class RecipeModelTest(RecipeTestBase):
             msg='Recipe is_published is not False',
         )
 
-
     @parameterized.expand([
         ('title', 65),
         ('description', 165),
