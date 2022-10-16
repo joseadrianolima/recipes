@@ -61,7 +61,4 @@ class RecipeModelTest(RecipeTestBase):
         self.assertEqual(str(self.recipe), strNameRecipeCategory)
         self.recipe.full_clean()
 
-    def test_recipe_category_name_max_length(self):
-        self.recipe.title = 'A' * (65)
-        self.assertRaises(ValidationError)
-        self.recipe.full_clean()
+ 
