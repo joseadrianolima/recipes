@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from django.contrib.messages import constants
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -8,12 +10,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-j$&43*7whc6rmv!5iv3c8$o9_k0e%if@)#57&!)gn(5uli-5!$' # noqa
+SECRET_KEY = os.environ.get('SECRET_KEY', 'INSECURE')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '192.168.15.11']
+DEBUG = True if os.environ.get('DEBUG') == '1' else False
+
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.15.16']
 
 
 # Application definition
@@ -25,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'authors',
     'recipes',
     'tinymce',
 ]
@@ -44,7 +48,7 @@ ROOT_URLCONF = 'recipesProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'base_templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'base_templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -63,39 +67,14 @@ WSGI_APPLICATION = 'recipesProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-"""
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-DATABASES = {
-    'default': {
-       'ENGINE': 'mssql',
-       'NAME': 'recipes',
-       'DATABASE': 'recipes',
-       'USER': 'sa',
-       'PASSWORD': '1234',
-       'HOST': '\\192.168.15.3\\sqlexpress',
-       'PORT': '1433'
-
-        'OPTIONS': {
-            'driver': 'ODBC Driver 17 for SQL Server',
-        },
-    },
-}
-"""
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'recipes',
-        'USER': 'postgres',
-        'PASSWORD': '1234',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'NAME': os.environ.get('PSQL_DBNAME', 'recipes'),
+        'USER': os.environ.get('PSQL_USER'),
+        'PASSWORD': os.environ.get('PSQL_PASS'),
+        'HOST': os.environ.get('PSQL_HOST'),
+        'PORT': os.environ.get('PSQL_PORT'),
     }
 }
 
@@ -149,3 +128,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MESSAGE_TAGS = {
+    constants.DEBUG: 'message-debug',
+    constants.ERROR: 'message-error',
+    constants.INFO: 'message-info',
+    constants.SUCCESS: 'message-success',
+    constants.WARNING: 'message-warning',
+}
