@@ -16,7 +16,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'INSECURE')
 
 DEBUG = True if os.environ.get('DEBUG') == '1' else False
 
-ALLOWED_HOSTS = ['127.0.0.1', '192.168.15.16']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -28,8 +28,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'authors',
     'recipes',
+    'authors',
     'tinymce',
 ]
 
@@ -48,7 +48,7 @@ ROOT_URLCONF = 'recipesProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'base_templates'), ],
+        'DIRS': [os.path.join(BASE_DIR, 'base_templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,14 +67,21 @@ WSGI_APPLICATION = 'recipesProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#        'NAME': os.environ.get('PSQL_DBNAME', 'recipes'),
+#        'USER': os.environ.get('PSQL_USER'),
+#        'PASSWORD': os.environ.get('PSQL_PASS'),
+##        'PORT': os.environ.get('PSQL_PORT'),
+#        'HOST': os.environ.get('PSQL_HOST'),
+#    }
+#}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('PSQL_DBNAME', 'recipes'),
-        'USER': os.environ.get('PSQL_USER'),
-        'PASSWORD': os.environ.get('PSQL_PASS'),
-        'HOST': os.environ.get('PSQL_HOST'),
-        'PORT': os.environ.get('PSQL_PORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -134,5 +141,5 @@ MESSAGE_TAGS = {
     constants.ERROR: 'message-error',
     constants.INFO: 'message-info',
     constants.SUCCESS: 'message-success',
-    constants.WARNING: 'message-warning',
+    constants.WARNING: 'message-warning'
 }
